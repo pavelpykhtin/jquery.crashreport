@@ -1,7 +1,26 @@
 {
-	"name": "jquery.crashreport",
-	"private": true,
-	"dependencies": {
-		"jquery": "^1.11.0"
-	}
+  "name": "jquery.crashreport",
+  "dependencies": {
+    "jquery": "^1.11.0"
+  },
+  "homepage": "https://github.com/pavelpykhtin/jquery.crashreport",
+  "authors": [
+    "Pavel Pykhtin <pavel.pykhtin@gmail.com>"
+  ],
+  "description": "Jquery adapter for CrashReport log system",
+  "main": "jquery.crashreport.js",
+  "moduleType": [],
+  "keywords": [
+    "jquery",
+    "crashreport"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "wwwroot/lib",
+    "test",
+    "tests"
+  ]
 }
