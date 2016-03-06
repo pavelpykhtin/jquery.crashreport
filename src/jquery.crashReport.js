@@ -1,7 +1,8 @@
 ﻿(function ($) {
 	var defaultOptions = {
 		url: '',
-		application: ''
+		application: '',
+		applicationVersion: '0.0'
 	};
 
 	$.fn.crashReport = function (options) {

@@ -3,7 +3,8 @@
 
 	var defaultOptions = {
 		url: '',
-		module: 'Unknown'
+		application: 'Unknown',
+		applicationVersion: '0.0'
 	}
 
 	self.options = $.extend({}, defaultOptions, options);
@@ -22,13 +23,18 @@
 	};
 
 	function log(message) {
+		var resultMessage = $.extend({
+			module: self.options.application,
+			version: self.options.applicationVersion
+		}, message);
+
 		$.ajax(
 			{
 				url: self.options.url,
 				contentType: 'application/json',
 				method: 'POST',
 				crossDomain: true,
-				data: JSON.stringify(message)
+				data: JSON.stringify(resultMessage)
 			});
 	};
 
@@ -36,14 +42,12 @@
 		var message = {
 			TimeStamp: null,
 			LogLevel: logLevels.Trace,
-			Module: self.options.module,
 			MessageText: messageText,
 			StackTrace: null,
 			AdditionalInformation: null,
 			UserId: 0,
 			PersonId: 0,
-			InnerException: null,
-			Version: appVersion
+			InnerException: null
 		}
 
 		self.log(message);
@@ -58,14 +62,12 @@
 		var message = {
 			TimeStamp: null,
 			LogLevel: logLevels.Fatal,
-			Module: self.options.module,
 			MessageText: formattedMessage,
 			StackTrace: (errorObject.stack || 'no stack available'),
 			AdditionalInformation: additionalInformation,
 			UserId: 0,
 			PersonId: 0,
-			InnerException: null,
-			Version: appVersion
+			InnerException: null
 		}
 
 		self.log(message);
