@@ -1,37 +1,3 @@
-function ErrorHandler(logService) {
-	var self = this;
-
-	self.throttling = true;
-	self.throttleTimeout = 2000;
-	self.lastError = null;
-	self.throttleTimer = null;
-
-	init();
-
-	function init() {
-		window.onerror = onError;
-	}
-
-	function onError(messageText, url, lineNumber, columnNumber, errorObject) {
-		if (self.throttling) {
-			var errorDescriptor = getErrorDescriptor(messageText, url, lineNumber, columnNumber);
-
-			if (errorDescriptor == self.lastError)
-				return;
-
-			clearTimeout(self.throttleTimer);
-			self.throttleTimer = setTimeout(function () { self.lastError = null; }, self.throttleTimeout);
-
-			self.lastError = errorDescriptor;
-		}
-
-		logService.logException(messageText, url, lineNumber, columnNumber, errorObject);
-	};
-
-	function getErrorDescriptor(messageText, url, lineNumber, columnNumber) {
-		return messageText + url + lineNumber + columnNumber;
-	}
-};
 (function ($) {
 	var defaultOptions = {
 		url: '',
@@ -45,42 +11,83 @@ function ErrorHandler(logService) {
 		function init() {
 			var instanceOptions = $.extend({}, defaultOptions, options);
 			
-			var logService = new LogService(instanceOptions);
-			var errorHandler = new ErrorHandler(logService);
+			var logService = new $.fn.crashReport.LogService(instanceOptions);
+			var errorHandler = new $.fn.crashReport.ErrorHandler(logService);
 		};
 	};
 })(jQuery);
-function LogService(options) {
-	var self = this;
+(function ($) {
+	$.extend($.fn.crashReport, { ErrorHandler: ErrorHandler });
 
-	var defaultOptions = {
-		url: '',
-		application: 'Unknown',
-		applicationVersion: '0.0'
+	function ErrorHandler(logService) {
+		var self = this;
+
+		self.throttling = true;
+		self.throttleTimeout = 2000;
+		self.lastError = null;
+		self.throttleTimer = null;
+
+		init();
+
+		function init() {
+			window.onerror = onError;
+		}
+
+		function onError(messageText, url, lineNumber, columnNumber, errorObject) {
+			if (self.throttling) {
+				var errorDescriptor = getErrorDescriptor(messageText, url, lineNumber, columnNumber);
+
+				if (errorDescriptor == self.lastError)
+					return;
+
+				clearTimeout(self.throttleTimer);
+				self.throttleTimer = setTimeout(function() { self.lastError = null; }, self.throttleTimeout);
+
+				self.lastError = errorDescriptor;
+			}
+
+			logService.logException(messageText, url, lineNumber, columnNumber, errorObject);
+		};
+
+		function getErrorDescriptor(messageText, url, lineNumber, columnNumber) {
+			return messageText + url + lineNumber + columnNumber;
+		}
 	}
+})(jQuery);
+(function($) {
+	$.extend($.fn.crashReport, { LogService: LogService });
 
-	self.options = $.extend({}, defaultOptions, options);
-	
-	self.log = log;
-	self.trace = trace;
-	self.logException = logException;
+	function LogService(options) {
+		var self = this;
 
-	var logLevels = {
-		Fatal: 0,
-		Debug: 1,
-		Error: 2,
-		Trace: 3,
-		Warn: 4,
-		Info: 5
-	};
+		var defaultOptions = {
+			url: '',
+			application: 'Unknown',
+			applicationVersion: '0.0'
+		}
 
-	function log(message) {
-		var resultMessage = $.extend({
-			module: self.options.application,
-			version: self.options.applicationVersion
-		}, message);
+		self.options = $.extend({}, defaultOptions, options);
 
-		$.ajax(
+		self.log = log;
+		self.trace = trace;
+		self.logException = logException;
+
+		var logLevels = {
+			Fatal: 0,
+			Debug: 1,
+			Error: 2,
+			Trace: 3,
+			Warn: 4,
+			Info: 5
+		};
+
+		function log(message) {
+			var resultMessage = $.extend({
+				module: self.options.application,
+				version: self.options.applicationVersion
+			}, message);
+
+			$.ajax(
 			{
 				url: self.options.url,
 				contentType: 'application/json',
@@ -88,40 +95,41 @@ function LogService(options) {
 				crossDomain: true,
 				data: JSON.stringify(resultMessage)
 			});
-	};
+		};
 
-	function trace(messageText) {
-		var message = {
-			TimeStamp: null,
-			LogLevel: logLevels.Trace,
-			MessageText: messageText,
-			StackTrace: null,
-			AdditionalInformation: null,
-			UserId: 0,
-			PersonId: 0,
-			InnerException: null
-		}
+		function trace(messageText) {
+			var message = {
+				TimeStamp: null,
+				LogLevel: logLevels.Trace,
+				MessageText: messageText,
+				StackTrace: null,
+				AdditionalInformation: null,
+				UserId: 0,
+				PersonId: 0,
+				InnerException: null
+			}
 
-		self.log(message);
-	};
+			self.log(message);
+		};
 
-	function logException(messageText, url, lineNumber, columnNumber, errorObject) {
-		var formattedMessage = messageText + '\r\n[' + url + '] [' + lineNumber + ':' + columnNumber + ']';
-		var additionalInformation = '';
-		additionalInformation += 'Current location: ' + window.location.href + '\r\n';
-		additionalInformation += 'User-Agent: ' + navigator.userAgent + '\r\n';
+		function logException(messageText, url, lineNumber, columnNumber, errorObject) {
+			var formattedMessage = messageText + '\r\n[' + url + '] [' + lineNumber + ':' + columnNumber + ']';
+			var additionalInformation = '';
+			additionalInformation += 'Current location: ' + window.location.href + '\r\n';
+			additionalInformation += 'User-Agent: ' + navigator.userAgent + '\r\n';
 
-		var message = {
-			TimeStamp: null,
-			LogLevel: logLevels.Fatal,
-			MessageText: formattedMessage,
-			StackTrace: (errorObject.stack || 'no stack available'),
-			AdditionalInformation: additionalInformation,
-			UserId: 0,
-			PersonId: 0,
-			InnerException: null
-		}
+			var message = {
+				TimeStamp: null,
+				LogLevel: logLevels.Fatal,
+				MessageText: formattedMessage,
+				StackTrace: (errorObject.stack || 'no stack available'),
+				AdditionalInformation: additionalInformation,
+				UserId: 0,
+				PersonId: 0,
+				InnerException: null
+			}
 
-		self.log(message);
-	};
-};
+			self.log(message);
+		};
+	}
+})(jQuery);

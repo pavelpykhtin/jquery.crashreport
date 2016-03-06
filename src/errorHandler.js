@@ -1,34 +1,38 @@
-﻿function ErrorHandler(logService) {
-	var self = this;
+﻿(function ($) {
+	$.extend($.fn.crashReport, { ErrorHandler: ErrorHandler });
 
-	self.throttling = true;
-	self.throttleTimeout = 2000;
-	self.lastError = null;
-	self.throttleTimer = null;
+	function ErrorHandler(logService) {
+		var self = this;
 
-	init();
+		self.throttling = true;
+		self.throttleTimeout = 2000;
+		self.lastError = null;
+		self.throttleTimer = null;
 
-	function init() {
-		window.onerror = onError;
-	}
+		init();
 
-	function onError(messageText, url, lineNumber, columnNumber, errorObject) {
-		if (self.throttling) {
-			var errorDescriptor = getErrorDescriptor(messageText, url, lineNumber, columnNumber);
-
-			if (errorDescriptor == self.lastError)
-				return;
-
-			clearTimeout(self.throttleTimer);
-			self.throttleTimer = setTimeout(function () { self.lastError = null; }, self.throttleTimeout);
-
-			self.lastError = errorDescriptor;
+		function init() {
+			window.onerror = onError;
 		}
 
-		logService.logException(messageText, url, lineNumber, columnNumber, errorObject);
-	};
+		function onError(messageText, url, lineNumber, columnNumber, errorObject) {
+			if (self.throttling) {
+				var errorDescriptor = getErrorDescriptor(messageText, url, lineNumber, columnNumber);
 
-	function getErrorDescriptor(messageText, url, lineNumber, columnNumber) {
-		return messageText + url + lineNumber + columnNumber;
+				if (errorDescriptor == self.lastError)
+					return;
+
+				clearTimeout(self.throttleTimer);
+				self.throttleTimer = setTimeout(function() { self.lastError = null; }, self.throttleTimeout);
+
+				self.lastError = errorDescriptor;
+			}
+
+			logService.logException(messageText, url, lineNumber, columnNumber, errorObject);
+		};
+
+		function getErrorDescriptor(messageText, url, lineNumber, columnNumber) {
+			return messageText + url + lineNumber + columnNumber;
+		}
 	}
-};
+})(jQuery);

@@ -6,7 +6,7 @@ var rename = require('gulp-rename');
 var debug = require('gulp-debug');
 
 var scripts = {
-	src: './src/**/*.js',
+	src: ['./src/jquery.crashreport.js', './src/**/*.js'],
 	dest: './dist/',
 	maps: './maps'
 };
