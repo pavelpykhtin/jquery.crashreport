@@ -27,13 +27,12 @@
 
 		function log(message) {
 			var resultMessage = $.extend({
-				module: self.options.application,
 				version: self.options.applicationVersion
 			}, message);
 
 			$.ajax(
 			{
-				url: self.options.url,
+				url: self.options.url + '/api/' + self.options.application + '/log',
 				contentType: 'application/json',
 				method: 'POST',
 				crossDomain: true,
@@ -41,13 +40,13 @@
 			});
 		};
 
-		function trace(messageText) {
+		function trace(messageText, additionalInforamtion) {
 			var message = {
 				TimeStamp: null,
 				LogLevel: logLevels.Trace,
 				MessageText: messageText,
 				StackTrace: null,
-				AdditionalInformation: null,
+				AdditionalInformation: additionalInforamtion ? JSON.stringify(additionalInforamtion) : null,
 				UserId: 0,
 				PersonId: 0,
 				InnerException: null
@@ -58,18 +57,17 @@
 
 		function logException(messageText, url, lineNumber, columnNumber, errorObject) {
 			var formattedMessage = messageText + '\r\n[' + url + '] [' + lineNumber + ':' + columnNumber + ']';
-			var additionalInformation = '';
-			additionalInformation += 'Current location: ' + window.location.href + '\r\n';
-			additionalInformation += 'User-Agent: ' + navigator.userAgent + '\r\n';
+			var additionalInformation = {
+				currentLoaction: window.location.href,
+				userAgent: navigator.userAgent
+			};
 
 			var message = {
 				TimeStamp: null,
 				LogLevel: logLevels.Fatal,
 				MessageText: formattedMessage,
 				StackTrace: (errorObject.stack || 'no stack available'),
-				AdditionalInformation: additionalInformation,
-				UserId: 0,
-				PersonId: 0,
+				AdditionalInformation: JSON.stringify(additionalInformation),
 				InnerException: null
 			}
 
