@@ -27,7 +27,7 @@
 
 		function log(message) {
 			var resultMessage = $.extend({
-				version: self.options.applicationVersion
+				Version: self.options.applicationVersion
 			}, message);
 
 			$.ajax(
