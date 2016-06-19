@@ -18,3 +18,5 @@ Options are:
 * **url**: Location of the CrashReport server which will collect errors
 * **application**: The key which identifies your application
 * **version**: Version of your application
+
+This will configure a handler which will catch errors all js errors being thrown on the page and send them to the reporting server. Errors will be logged with a 'Fatal' log level.
