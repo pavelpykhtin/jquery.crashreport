@@ -8,7 +8,7 @@
     "Pavel Pykhtin <pavel.pykhtin@gmail.com>"
   ],
   "description": "Jquery adapter for CrashReport log system",
-  "main": "jquery.crashreport.js",
+  "main": "./dist/jquery.crashreport.js",
   "moduleType": [],
   "keywords": [
     "jquery",
