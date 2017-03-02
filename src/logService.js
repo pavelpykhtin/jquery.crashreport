@@ -66,7 +66,7 @@
 				TimeStamp: null,
 				LogLevel: logLevels.Fatal,
 				MessageText: formattedMessage,
-				StackTrace: (errorObject.stack || 'no stack available'),
+				StackTrace: (errorObject && errorObject.stack) || 'no stack available',
 				AdditionalInformation: JSON.stringify(additionalInformation),
 				InnerException: null
 			}
