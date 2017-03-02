@@ -12,10 +12,16 @@
 		init();
 
 		function init() {
-			window.onerror = onError;
+			window.addEventListener('error', onError);
 		}
 
-		function onError(messageText, url, lineNumber, columnNumber, errorObject) {
+		function onError(e) {
+			var messageText = e.message;
+			var lineNumber = e.lineno;
+			var columnNumber = e.colno;
+			var errorObject = e.error;
+			var url = e.filename;
+
 			if (self.throttling) {
 				var errorDescriptor = getErrorDescriptor(messageText, url, lineNumber, columnNumber);
 
